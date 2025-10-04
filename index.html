@@ -2,7 +2,39 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <!-- Métadonnées PWA pour installation mobile -->
+    <meta name="theme-color" content="#3498db">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Devis Auto">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- Icône pour iOS -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>">
+
+    <!-- Icône pour Android -->
+    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>">
+
+    <!-- Manifest PWA -->
+    <link rel="manifest" href="data:application/manifest+json,{
+      &quot;name&quot;: &quot;Devis Auto&quot;,
+      &quot;short_name&quot;: &quot;Devis Auto&quot;,
+      &quot;description&quot;: &quot;Système de gestion de devis pour pièces automobiles&quot;,
+      &quot;start_url&quot;: &quot;./&quot;,
+      &quot;display&quot;: &quot;standalone&quot;,
+      &quot;background_color&quot;: &quot;#ffffff&quot;,
+      &quot;theme_color&quot;: &quot;#3498db&quot;,
+      &quot;orientation&quot;: &quot;portrait&quot;,
+      &quot;icons&quot;: [
+        {
+          &quot;src&quot;: &quot;data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%233498db' rx='20'/><text x='50%' y='50%' font-size='40' text-anchor='middle' dy='.3em' fill='white'>📄</text></svg>&quot;,
+          &quot;sizes&quot;: &quot;192x192&quot;,
+          &quot;type&quot;: &quot;image/svg+xml&quot;
+        }
+      ]
+    }">
+    
     <title>Système de Devis - Gestion d'Articles</title>
     <style>
         :root {
@@ -12,6 +44,7 @@
             --light: #ecf0f1;
             --dark: #34495e;
             --danger: #e74c3c;
+            --safe-area-top: env(safe-area-inset-top, 0px);
         }
         
         * {
@@ -25,6 +58,8 @@
             background-color: #f5f7fa;
             color: #333;
             line-height: 1.6;
+            padding-top: var(--safe-area-top);
+            min-height: 100vh;
         }
         
         .container {
@@ -72,6 +107,13 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
         
         input {
@@ -83,12 +125,16 @@
             color: white;
             border: none;
             cursor: pointer;
-            transition: background-color 0.3s;
             font-weight: 600;
         }
         
         button:hover {
             background-color: #2980b9;
+            transform: translateY(-1px);
+        }
+        
+        button:active {
+            transform: translateY(0);
         }
         
         .filters {
@@ -167,6 +213,8 @@
         
         .quote-items {
             margin-bottom: 20px;
+            max-height: 400px;
+            overflow-y: auto;
         }
         
         .quote-item {
@@ -174,6 +222,7 @@
             justify-content: space-between;
             padding: 15px 0;
             border-bottom: 1px solid #eee;
+            align-items: center;
         }
         
         .quote-item:last-child {
@@ -183,6 +232,7 @@
         .item-details {
             display: flex;
             flex-direction: column;
+            flex: 1;
         }
         
         .item-name {
@@ -221,12 +271,27 @@
             justify-content: center;
             border-radius: 50%;
             cursor: pointer;
+            border: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        .quantity-btn:hover {
+            background-color: #e0e0e0;
         }
         
         .remove-item {
             color: var(--danger);
             cursor: pointer;
             font-size: 1.2rem;
+            background: none;
+            border: none;
+            padding: 5px;
+            margin-left: 10px;
+        }
+        
+        .remove-item:hover {
+            color: #c0392b;
         }
         
         .quote-summary {
@@ -289,6 +354,31 @@
             margin-bottom: 15px;
             opacity: 0.5;
         }
+
+        /* Styles pour le bouton d'installation PWA */
+        #installPWA {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        #installPWA:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+        }
         
         @media (max-width: 768px) {
             .search-box, .filters {
@@ -308,10 +398,23 @@
             .quote-item {
                 flex-direction: column;
                 gap: 10px;
+                align-items: flex-start;
             }
             
             .item-actions {
                 justify-content: space-between;
+                width: 100%;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            #installPWA {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                text-align: center;
             }
         }
         
@@ -322,6 +425,18 @@
             
             h1 {
                 font-size: 1.8rem;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+
+        /* Styles pour le mode standalone */
+        @media all and (display-mode: standalone) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
             }
         }
     </style>
@@ -345,8 +460,8 @@
                     <option value="price-asc">Trier par prix (Croissant)</option>
                     <option value="price-desc">Trier par prix (Décroissant)</option>
                 </select>
-                <input type="number" id="price-min" placeholder="Prix min">
-                <input type="number" id="price-max" placeholder="Prix max">
+                <input type="number" id="price-min" placeholder="Prix min" min="0" step="0.01">
+                <input type="number" id="price-max" placeholder="Prix max" min="0" step="0.01">
                 <button id="filter-btn">Filtrer</button>
             </div>
         </section>
@@ -381,7 +496,7 @@
                     <span id="subtotal">0.00 DT</span>
                 </div>
                 <div class="markup-section">
-                    <input type="number" id="markup-input" placeholder="Ajouter une marge (%)" min="0" max="100">
+                    <input type="number" id="markup-input" placeholder="Ajouter une marge (%)" min="0" max="100" step="0.1">
                     <button id="apply-markup">Appliquer</button>
                 </div>
                 <div class="summary-row">
@@ -403,23 +518,23 @@
 
     <script>
         // Données d'exemple (remplacez par vos données CSV)
-       const sampleArticles = [
-    { reference: "AUTO001", name: "Filtre à huile", price: 12.99 },
-    { reference: "AUTO002", name: "Plaquettes de frein avant", price: 45.99 },
-    { reference: "AUTO003", name: "Bougie d'allumage", price: 8.50 },
-    { reference: "AUTO004", name: "Batterie 12V 60Ah", price: 89.99 },
-    { reference: "AUTO005", name: "Pneu 205/55 R16", price: 75.99 },
-    { reference: "AUTO006", name: "Amortisseur avant", price: 62.99 },
-    { reference: "AUTO007", name: "Radiateur", price: 120.99 },
-    { reference: "AUTO008", name: "Embrayage complet", price: 185.99 },
-    { reference: "AUTO009", name: "Alternateur", price: 145.99 },
-    { reference: "AUTO010", name: "Démarreur", price: 95.99 },
-    { reference: "AUTO011", name: "Courroie de distribution", price: 38.99 },
-    { reference: "AUTO012", name: "Filtre à air", price: 18.99 },
-    { reference: "AUTO013", name: "Rétroviseur latéral", price: 32.99 },
-    { reference: "AUTO014", name: "Phare avant gauche", price: 89.99 },
-    { reference: "AUTO015", name: "Silencieux arrière", price: 67.99 }
-];
+        const sampleArticles = [
+            { reference: "AUTO001", name: "Filtre à huile", price: 12.99 },
+            { reference: "AUTO002", name: "Plaquettes de frein avant", price: 45.99 },
+            { reference: "AUTO003", name: "Bougie d'allumage", price: 8.50 },
+            { reference: "AUTO004", name: "Batterie 12V 60Ah", price: 89.99 },
+            { reference: "AUTO005", name: "Pneu 205/55 R16", price: 75.99 },
+            { reference: "AUTO006", name: "Amortisseur avant", price: 62.99 },
+            { reference: "AUTO007", name: "Radiateur", price: 120.99 },
+            { reference: "AUTO008", name: "Embrayage complet", price: 185.99 },
+            { reference: "AUTO009", name: "Alternateur", price: 145.99 },
+            { reference: "AUTO010", name: "Démarreur", price: 95.99 },
+            { reference: "AUTO011", name: "Courroie de distribution", price: 38.99 },
+            { reference: "AUTO012", name: "Filtre à air", price: 18.99 },
+            { reference: "AUTO013", name: "Rétroviseur latéral", price: 32.99 },
+            { reference: "AUTO014", name: "Phare avant gauche", price: 89.99 },
+            { reference: "AUTO015", name: "Silencieux arrière", price: 67.99 }
+        ];
         
         // Variables globales
         let allArticles = [];
@@ -447,7 +562,7 @@
         
         // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
-            // Charger les articles (dans un cas réel, vous chargeriez depuis votre CSV)
+            // Charger les articles
             allArticles = sampleArticles;
             filteredArticles = [...allArticles];
             
@@ -465,6 +580,9 @@
             
             // Recherche en temps réel
             searchInput.addEventListener('input', handleSearch);
+            
+            // Initialiser PWA
+            initializePWA();
         });
         
         // Afficher les articles
@@ -507,7 +625,7 @@
         
         // Gérer la recherche
         function handleSearch() {
-            const searchTerm = searchInput.value.toLowerCase();
+            const searchTerm = searchInput.value.toLowerCase().trim();
             
             if (searchTerm === '') {
                 filteredArticles = [...allArticles];
@@ -613,12 +731,12 @@
                         </div>
                         <div class="item-actions">
                             <div class="quantity-control">
-                                <span class="quantity-btn minus" data-index="${index}">-</span>
+                                <button class="quantity-btn minus" data-index="${index}">-</button>
                                 <span>${item.quantity}</span>
-                                <span class="quantity-btn plus" data-index="${index}">+</span>
+                                <button class="quantity-btn plus" data-index="${index}">+</button>
                             </div>
                             <div class="item-price">${(item.price * item.quantity).toFixed(2)} DT</div>
-                            <div class="remove-item" data-index="${index}">×</div>
+                            <button class="remove-item" data-index="${index}" title="Supprimer">×</button>
                         </div>
                     `;
                     quoteItemsContainer.appendChild(itemElement);
@@ -674,10 +792,17 @@
         
         // Vider le devis
         function clearQuote() {
-            quoteItems = [];
-            markupPercentage = 0;
-            markupInput.value = '';
-            updateQuoteDisplay();
+            if (quoteItems.length === 0) {
+                alert("Le devis est déjà vide.");
+                return;
+            }
+            
+            if (confirm("Êtes-vous sûr de vouloir vider le devis ?")) {
+                quoteItems = [];
+                markupPercentage = 0;
+                markupInput.value = '';
+                updateQuoteDisplay();
+            }
         }
         
         // Appliquer une marge
@@ -688,7 +813,7 @@
                 markupPercentage = markupValue;
                 updateQuoteSummary();
             } else {
-                alert("Veuillez entrer un pourcentage valide");
+                alert("Veuillez entrer un pourcentage valide (0-100)");
             }
         }
         
@@ -710,9 +835,6 @@
                 return;
             }
             
-            // Dans un cas réel, vous enverriez les données à un serveur
-            // Ici, nous allons simplement simuler l'enregistrement
-            
             const subtotal = quoteItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const markupAmount = subtotal * (markupPercentage / 100);
             const total = subtotal + markupAmount;
@@ -726,10 +848,17 @@
             };
             
             // Simuler l'enregistrement
-            alert(`Devis enregistré avec succès!\n\nTotal: ${total.toFixed(2)} DT\n\nDans un système réel, les données seraient sauvegardées.`);
+            const fileName = `devis-${new Date().toISOString().split('T')[0]}.json`;
+            const dataStr = JSON.stringify(quoteData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
             
-            // Optionnel: Réinitialiser le devis après enregistrement
-            // clearQuote();
+            // Créer un lien de téléchargement
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = fileName;
+            link.click();
+            
+            alert(`Devis enregistré avec succès!\n\nTotal: ${total.toFixed(2)} DT\n\nLe fichier ${fileName} a été téléchargé.`);
         }
         
         // Imprimer le devis
@@ -739,7 +868,6 @@
                 return;
             }
             
-            // Ouvrir une nouvelle fenêtre avec le contenu du devis formaté pour l'impression
             const printWindow = window.open('', '_blank');
             const subtotal = quoteItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const markupAmount = subtotal * (markupPercentage / 100);
@@ -749,7 +877,7 @@
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <title>Devis</title>
+                    <title>Devis - ${new Date().toLocaleDateString('fr-FR')}</title>
                     <style>
                         body { font-family: Arial, sans-serif; margin: 20px; }
                         h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
@@ -758,11 +886,16 @@
                         th { background-color: #f2f2f2; }
                         .total-row { font-weight: bold; font-size: 1.2em; }
                         .summary { margin-top: 30px; }
+                        @media print {
+                            body { margin: 0; }
+                            button { display: none; }
+                        }
                     </style>
                 </head>
                 <body>
                     <h1>Devis</h1>
-                    <p>Date: ${new Date().toLocaleDateString('fr-FR')}</p>
+                    <p><strong>Date:</strong> ${new Date().toLocaleDateString('fr-FR')}</p>
+                    <p><strong>Heure:</strong> ${new Date().toLocaleTimeString('fr-FR')}</p>
                     
                     <table>
                         <thead>
@@ -788,16 +921,85 @@
                     </table>
                     
                     <div class="summary">
-                        <p>Sous-total: ${subtotal.toFixed(2)} DT</p>
-                        <p>Marge (${markupPercentage}%): ${markupAmount.toFixed(2)} DT</p>
-                        <p class="total-row">Total: ${total.toFixed(2)} DT</p>
+                        <p><strong>Sous-total:</strong> ${subtotal.toFixed(2)} DT</p>
+                        <p><strong>Marge (${markupPercentage}%):</strong> ${markupAmount.toFixed(2)} DT</p>
+                        <p class="total-row"><strong>Total:</strong> ${total.toFixed(2)} DT</p>
                     </div>
+                    
+                    <button onclick="window.print()">Imprimer</button>
+                    <button onclick="window.close()">Fermer</button>
                 </body>
                 </html>
             `);
             
             printWindow.document.close();
-            printWindow.print();
+        }
+
+        // Gestion PWA
+        function initializePWA() {
+            let deferredPrompt;
+            const installButton = document.getElementById('installPWA') || createInstallButton();
+
+            function createInstallButton() {
+                const button = document.createElement('button');
+                button.id = 'installPWA';
+                button.innerHTML = '📱 Installer l\'app';
+                document.body.appendChild(button);
+                return button;
+            }
+
+            function isMobileDevice() {
+                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            }
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                
+                if (isMobileDevice() && installButton) {
+                    installButton.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        if (installButton) installButton.style.display = 'none';
+                    }, 15000);
+                }
+            });
+
+            if (installButton) {
+                installButton.addEventListener('click', async () => {
+                    if (!deferredPrompt) return;
+                    
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    
+                    if (outcome === 'accepted') {
+                        installButton.style.display = 'none';
+                    }
+                    
+                    deferredPrompt = null;
+                });
+            }
+
+            window.addEventListener('appinstalled', () => {
+                if (installButton) installButton.style.display = 'none';
+                deferredPrompt = null;
+            });
+
+            // Service Worker simple
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                    const swUrl = URL.createObjectURL(new Blob([`
+                        self.addEventListener('install', function(event) {
+                            self.skipWaiting();
+                        });
+                        self.addEventListener('fetch', function(event) {
+                            event.respondWith(fetch(event.request));
+                        });
+                    `], { type: 'application/javascript' }));
+                    
+                    navigator.serviceWorker.register(swUrl).catch(console.error);
+                });
+            }
         }
     </script>
 </body>
