@@ -378,7 +378,7 @@
             <div class="quote-summary">
                 <div class="summary-row">
                     <span>Sous-total:</span>
-                    <span id="subtotal">0.00 €</span>
+                    <span id="subtotal">0.00 DT</span>
                 </div>
                 <div class="markup-section">
                     <input type="number" id="markup-input" placeholder="Ajouter une marge (%)" min="0" max="100">
@@ -386,11 +386,11 @@
                 </div>
                 <div class="summary-row">
                     <span>Marge:</span>
-                    <span id="markup-amount">0.00 €</span>
+                    <span id="markup-amount">0.00 DT</span>
                 </div>
                 <div class="summary-row total-row">
                     <span>Total:</span>
-                    <span id="total-amount">0.00 €</span>
+                    <span id="total-amount">0.00 DT</span>
                 </div>
                 
                 <div class="actions">
@@ -403,18 +403,23 @@
 
     <script>
         // Données d'exemple (remplacez par vos données CSV)
-        const sampleArticles = [
-            { reference: "REF001", name: "Ordinateur Portable Pro", price: 899.99 },
-            { reference: "REF002", name: "Souris Sans Fil", price: 29.99 },
-            { reference: "REF003", name: "Clavier Mécanique", price: 79.99 },
-            { reference: "REF004", name: "Écran 24 pouces", price: 199.99 },
-            { reference: "REF005", name: "Casque Audio", price: 59.99 },
-            { reference: "REF006", name: "Webcam HD", price: 49.99 },
-            { reference: "REF007", name: "Disque Dur Externe 1To", price: 69.99 },
-            { reference: "REF008", name: "Station d'accueil USB-C", price: 129.99 },
-            { reference: "REF009", name: "Logiciel Antivirus", price: 39.99 },
-            { reference: "REF010", name: "Sacoche pour Ordinateur", price: 45.99 }
-        ];
+       const sampleArticles = [
+    { reference: "AUTO001", name: "Filtre à huile", price: 12.99 },
+    { reference: "AUTO002", name: "Plaquettes de frein avant", price: 45.99 },
+    { reference: "AUTO003", name: "Bougie d'allumage", price: 8.50 },
+    { reference: "AUTO004", name: "Batterie 12V 60Ah", price: 89.99 },
+    { reference: "AUTO005", name: "Pneu 205/55 R16", price: 75.99 },
+    { reference: "AUTO006", name: "Amortisseur avant", price: 62.99 },
+    { reference: "AUTO007", name: "Radiateur", price: 120.99 },
+    { reference: "AUTO008", name: "Embrayage complet", price: 185.99 },
+    { reference: "AUTO009", name: "Alternateur", price: 145.99 },
+    { reference: "AUTO010", name: "Démarreur", price: 95.99 },
+    { reference: "AUTO011", name: "Courroie de distribution", price: 38.99 },
+    { reference: "AUTO012", name: "Filtre à air", price: 18.99 },
+    { reference: "AUTO013", name: "Rétroviseur latéral", price: 32.99 },
+    { reference: "AUTO014", name: "Phare avant gauche", price: 89.99 },
+    { reference: "AUTO015", name: "Silencieux arrière", price: 67.99 }
+];
         
         // Variables globales
         let allArticles = [];
@@ -484,7 +489,7 @@
                     <div class="article-info">
                         <div class="article-ref">${article.reference}</div>
                         <div class="article-name">${article.name}</div>
-                        <div class="article-price">${article.price.toFixed(2)} €</div>
+                        <div class="article-price">${article.price.toFixed(2)} DT</div>
                         <button class="add-to-quote" data-ref="${article.reference}">Ajouter au devis</button>
                     </div>
                 `;
@@ -612,7 +617,7 @@
                                 <span>${item.quantity}</span>
                                 <span class="quantity-btn plus" data-index="${index}">+</span>
                             </div>
-                            <div class="item-price">${(item.price * item.quantity).toFixed(2)} €</div>
+                            <div class="item-price">${(item.price * item.quantity).toFixed(2)} DT</div>
                             <div class="remove-item" data-index="${index}">×</div>
                         </div>
                     `;
@@ -693,9 +698,9 @@
             const markupAmount = subtotal * (markupPercentage / 100);
             const total = subtotal + markupAmount;
             
-            subtotalElement.textContent = `${subtotal.toFixed(2)} €`;
-            markupAmountElement.textContent = `${markupAmount.toFixed(2)} €`;
-            totalAmountElement.textContent = `${total.toFixed(2)} €`;
+            subtotalElement.textContent = `${subtotal.toFixed(2)} DT`;
+            markupAmountElement.textContent = `${markupAmount.toFixed(2)} DT`;
+            totalAmountElement.textContent = `${total.toFixed(2)} DT`;
         }
         
         // Enregistrer le devis
@@ -721,7 +726,7 @@
             };
             
             // Simuler l'enregistrement
-            alert(`Devis enregistré avec succès!\n\nTotal: ${total.toFixed(2)} €\n\nDans un système réel, les données seraient sauvegardées.`);
+            alert(`Devis enregistré avec succès!\n\nTotal: ${total.toFixed(2)} DT\n\nDans un système réel, les données seraient sauvegardées.`);
             
             // Optionnel: Réinitialiser le devis après enregistrement
             // clearQuote();
@@ -775,17 +780,17 @@
                                     <td>${item.reference}</td>
                                     <td>${item.name}</td>
                                     <td>${item.quantity}</td>
-                                    <td>${item.price.toFixed(2)} €</td>
-                                    <td>${(item.price * item.quantity).toFixed(2)} €</td>
+                                    <td>${item.price.toFixed(2)} DT</td>
+                                    <td>${(item.price * item.quantity).toFixed(2)} DT</td>
                                 </tr>
                             `).join('')}
                         </tbody>
                     </table>
                     
                     <div class="summary">
-                        <p>Sous-total: ${subtotal.toFixed(2)} €</p>
-                        <p>Marge (${markupPercentage}%): ${markupAmount.toFixed(2)} €</p>
-                        <p class="total-row">Total: ${total.toFixed(2)} €</p>
+                        <p>Sous-total: ${subtotal.toFixed(2)} DT</p>
+                        <p>Marge (${markupPercentage}%): ${markupAmount.toFixed(2)} DT</p>
+                        <p class="total-row">Total: ${total.toFixed(2)} DT</p>
                     </div>
                 </body>
                 </html>
