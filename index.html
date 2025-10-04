@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Système de Devis - Gestion d'Articles</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --success: #2ecc71;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --danger: #e74c3c;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .search-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        input, select, button {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        input {
+            flex: 1;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: 600;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .article-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .article-info {
+            padding: 15px;
+        }
+        
+        .article-ref {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        
+        .article-name {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .article-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .add-to-quote {
+            width: 100%;
+            background-color: var(--success);
+            padding: 10px;
+        }
+        
+        .add-to-quote:hover {
+            background-color: #27ae60;
+        }
+        
+        .quote-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .quote-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .quote-items {
+            margin-bottom: 20px;
+        }
+        
+        .quote-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .quote-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-details {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .item-name {
+            font-weight: 600;
+        }
+        
+        .item-ref {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+        }
+        
+        .item-price {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .item-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .quantity-btn {
+            background-color: #f1f1f1;
+            color: #333;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .remove-item {
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        
+        .quote-summary {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .total-row {
+            font-weight: 700;
+            font-size: 1.2rem;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+        
+        .markup-section {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .markup-section input {
+            flex: 1;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        @media (max-width: 768px) {
+            .search-box, .filters {
+                flex-direction: column;
+            }
+            
+            .articles-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            .quote-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .quote-item {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .item-actions {
+                justify-content: space-between;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .articles-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Système de Devis</h1>
+            <p class="subtitle">Consultez vos articles et générez des devis professionnels</p>
+        </header>
+        
+        <section class="search-section">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Rechercher un article par nom ou référence...">
+                <button id="search-btn">Rechercher</button>
+            </div>
+            <div class="filters">
+                <select id="sort-select">
+                    <option value="name-asc">Trier par nom (A-Z)</option>
+                    <option value="name-desc">Trier par nom (Z-A)</option>
+                    <option value="price-asc">Trier par prix (Croissant)</option>
+                    <option value="price-desc">Trier par prix (Décroissant)</option>
+                </select>
+                <input type="number" id="price-min" placeholder="Prix min">
+                <input type="number" id="price-max" placeholder="Prix max">
+                <button id="filter-btn">Filtrer</button>
+            </div>
+        </section>
+        
+        <section class="articles-section">
+            <h2>Articles disponibles</h2>
+            <div class="articles-grid" id="articles-container">
+                <!-- Les articles seront chargés ici dynamiquement -->
+            </div>
+        </section>
+        
+        <section class="quote-section">
+            <div class="quote-header">
+                <h2>Devis en cours</h2>
+                <div class="quote-actions">
+                    <button id="clear-quote" class="btn-secondary">Vider le devis</button>
+                </div>
+            </div>
+            
+            <div class="quote-items" id="quote-items">
+                <!-- Les articles du devis seront affichés ici -->
+                <div class="empty-state">
+                    <i>📄</i>
+                    <p>Aucun article dans le devis</p>
+                    <p>Ajoutez des articles depuis la liste ci-dessus</p>
+                </div>
+            </div>
+            
+            <div class="quote-summary">
+                <div class="summary-row">
+                    <span>Sous-total:</span>
+                    <span id="subtotal">0.00 €</span>
+                </div>
+                <div class="markup-section">
+                    <input type="number" id="markup-input" placeholder="Ajouter une marge (%)" min="0" max="100">
+                    <button id="apply-markup">Appliquer</button>
+                </div>
+                <div class="summary-row">
+                    <span>Marge:</span>
+                    <span id="markup-amount">0.00 €</span>
+                </div>
+                <div class="summary-row total-row">
+                    <span>Total:</span>
+                    <span id="total-amount">0.00 €</span>
+                </div>
+                
+                <div class="actions">
+                    <button id="save-quote" class="btn-success">Enregistrer le devis</button>
+                    <button id="print-quote" class="btn-primary">Imprimer le devis</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Données d'exemple (remplacez par vos données CSV)
+        const sampleArticles = [
+            { reference: "REF001", name: "Ordinateur Portable Pro", price: 899.99 },
+            { reference: "REF002", name: "Souris Sans Fil", price: 29.99 },
+            { reference: "REF003", name: "Clavier Mécanique", price: 79.99 },
+            { reference: "REF004", name: "Écran 24 pouces", price: 199.99 },
+            { reference: "REF005", name: "Casque Audio", price: 59.99 },
+            { reference: "REF006", name: "Webcam HD", price: 49.99 },
+            { reference: "REF007", name: "Disque Dur Externe 1To", price: 69.99 },
+            { reference: "REF008", name: "Station d'accueil USB-C", price: 129.99 },
+            { reference: "REF009", name: "Logiciel Antivirus", price: 39.99 },
+            { reference: "REF010", name: "Sacoche pour Ordinateur", price: 45.99 }
+        ];
+        
+        // Variables globales
+        let allArticles = [];
+        let filteredArticles = [];
+        let quoteItems = [];
+        let markupPercentage = 0;
+        
+        // Éléments DOM
+        const articlesContainer = document.getElementById('articles-container');
+        const quoteItemsContainer = document.getElementById('quote-items');
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const sortSelect = document.getElementById('sort-select');
+        const priceMinInput = document.getElementById('price-min');
+        const priceMaxInput = document.getElementById('price-max');
+        const filterBtn = document.getElementById('filter-btn');
+        const clearQuoteBtn = document.getElementById('clear-quote');
+        const markupInput = document.getElementById('markup-input');
+        const applyMarkupBtn = document.getElementById('apply-markup');
+        const subtotalElement = document.getElementById('subtotal');
+        const markupAmountElement = document.getElementById('markup-amount');
+        const totalAmountElement = document.getElementById('total-amount');
+        const saveQuoteBtn = document.getElementById('save-quote');
+        const printQuoteBtn = document.getElementById('print-quote');
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Charger les articles (dans un cas réel, vous chargeriez depuis votre CSV)
+            allArticles = sampleArticles;
+            filteredArticles = [...allArticles];
+            
+            // Afficher les articles
+            displayArticles(filteredArticles);
+            
+            // Événements
+            searchBtn.addEventListener('click', handleSearch);
+            filterBtn.addEventListener('click', handleFilter);
+            sortSelect.addEventListener('change', handleSort);
+            clearQuoteBtn.addEventListener('click', clearQuote);
+            applyMarkupBtn.addEventListener('click', applyMarkup);
+            saveQuoteBtn.addEventListener('click', saveQuote);
+            printQuoteBtn.addEventListener('click', printQuote);
+            
+            // Recherche en temps réel
+            searchInput.addEventListener('input', handleSearch);
+        });
+        
+        // Afficher les articles
+        function displayArticles(articles) {
+            articlesContainer.innerHTML = '';
+            
+            if (articles.length === 0) {
+                articlesContainer.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <i>🔍</i>
+                        <p>Aucun article trouvé</p>
+                        <p>Essayez de modifier vos critères de recherche</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            articles.forEach(article => {
+                const articleCard = document.createElement('div');
+                articleCard.className = 'article-card';
+                articleCard.innerHTML = `
+                    <div class="article-info">
+                        <div class="article-ref">${article.reference}</div>
+                        <div class="article-name">${article.name}</div>
+                        <div class="article-price">${article.price.toFixed(2)} €</div>
+                        <button class="add-to-quote" data-ref="${article.reference}">Ajouter au devis</button>
+                    </div>
+                `;
+                articlesContainer.appendChild(articleCard);
+            });
+            
+            // Ajouter les événements aux boutons "Ajouter au devis"
+            document.querySelectorAll('.add-to-quote').forEach(button => {
+                button.addEventListener('click', function() {
+                    const ref = this.getAttribute('data-ref');
+                    addToQuote(ref);
+                });
+            });
+        }
+        
+        // Gérer la recherche
+        function handleSearch() {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            if (searchTerm === '') {
+                filteredArticles = [...allArticles];
+            } else {
+                filteredArticles = allArticles.filter(article => 
+                    article.name.toLowerCase().includes(searchTerm) || 
+                    article.reference.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            applyFilters();
+        }
+        
+        // Gérer le filtrage
+        function handleFilter() {
+            applyFilters();
+        }
+        
+        // Appliquer les filtres et le tri
+        function applyFilters() {
+            let result = [...filteredArticles];
+            
+            // Filtrer par prix
+            const minPrice = parseFloat(priceMinInput.value);
+            const maxPrice = parseFloat(priceMaxInput.value);
+            
+            if (!isNaN(minPrice)) {
+                result = result.filter(article => article.price >= minPrice);
+            }
+            
+            if (!isNaN(maxPrice)) {
+                result = result.filter(article => article.price <= maxPrice);
+            }
+            
+            // Trier
+            const sortValue = sortSelect.value;
+            switch(sortValue) {
+                case 'name-asc':
+                    result.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case 'name-desc':
+                    result.sort((a, b) => b.name.localeCompare(a.name));
+                    break;
+                case 'price-asc':
+                    result.sort((a, b) => a.price - b.price);
+                    break;
+                case 'price-desc':
+                    result.sort((a, b) => b.price - a.price);
+                    break;
+            }
+            
+            displayArticles(result);
+        }
+        
+        // Gérer le tri
+        function handleSort() {
+            applyFilters();
+        }
+        
+        // Ajouter un article au devis
+        function addToQuote(ref) {
+            const article = allArticles.find(a => a.reference === ref);
+            
+            if (!article) return;
+            
+            // Vérifier si l'article est déjà dans le devis
+            const existingItem = quoteItems.find(item => item.reference === ref);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                quoteItems.push({
+                    reference: article.reference,
+                    name: article.name,
+                    price: article.price,
+                    quantity: 1
+                });
+            }
+            
+            updateQuoteDisplay();
+        }
+        
+        // Mettre à jour l'affichage du devis
+        function updateQuoteDisplay() {
+            if (quoteItems.length === 0) {
+                quoteItemsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i>📄</i>
+                        <p>Aucun article dans le devis</p>
+                        <p>Ajoutez des articles depuis la liste ci-dessus</p>
+                    </div>
+                `;
+            } else {
+                quoteItemsContainer.innerHTML = '';
+                
+                quoteItems.forEach((item, index) => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'quote-item';
+                    itemElement.innerHTML = `
+                        <div class="item-details">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-ref">${item.reference}</div>
+                        </div>
+                        <div class="item-actions">
+                            <div class="quantity-control">
+                                <span class="quantity-btn minus" data-index="${index}">-</span>
+                                <span>${item.quantity}</span>
+                                <span class="quantity-btn plus" data-index="${index}">+</span>
+                            </div>
+                            <div class="item-price">${(item.price * item.quantity).toFixed(2)} €</div>
+                            <div class="remove-item" data-index="${index}">×</div>
+                        </div>
+                    `;
+                    quoteItemsContainer.appendChild(itemElement);
+                });
+                
+                // Ajouter les événements pour les boutons de quantité et de suppression
+                document.querySelectorAll('.quantity-btn.minus').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        decreaseQuantity(index);
+                    });
+                });
+                
+                document.querySelectorAll('.quantity-btn.plus').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        increaseQuantity(index);
+                    });
+                });
+                
+                document.querySelectorAll('.remove-item').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        removeFromQuote(index);
+                    });
+                });
+            }
+            
+            updateQuoteSummary();
+        }
+        
+        // Diminuer la quantité d'un article
+        function decreaseQuantity(index) {
+            if (quoteItems[index].quantity > 1) {
+                quoteItems[index].quantity -= 1;
+            } else {
+                quoteItems.splice(index, 1);
+            }
+            updateQuoteDisplay();
+        }
+        
+        // Augmenter la quantité d'un article
+        function increaseQuantity(index) {
+            quoteItems[index].quantity += 1;
+            updateQuoteDisplay();
+        }
+        
+        // Supprimer un article du devis
+        function removeFromQuote(index) {
+            quoteItems.splice(index, 1);
+            updateQuoteDisplay();
+        }
+        
+        // Vider le devis
+        function clearQuote() {
+            quoteItems = [];
+            markupPercentage = 0;
+            markupInput.value = '';
+            updateQuoteDisplay();
+        }
+        
+        // Appliquer une marge
+        function applyMarkup() {
+            const markupValue = parseFloat(markupInput.value);
+            
+            if (!isNaN(markupValue) && markupValue >= 0) {
+                markupPercentage = markupValue;
+                updateQuoteSummary();
+            } else {
+                alert("Veuillez entrer un pourcentage valide");
+            }
+        }
+        
+        // Mettre à jour le résumé du devis
+        function updateQuoteSummary() {
+            const subtotal = quoteItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const markupAmount = subtotal * (markupPercentage / 100);
+            const total = subtotal + markupAmount;
+            
+            subtotalElement.textContent = `${subtotal.toFixed(2)} €`;
+            markupAmountElement.textContent = `${markupAmount.toFixed(2)} €`;
+            totalAmountElement.textContent = `${total.toFixed(2)} €`;
+        }
+        
+        // Enregistrer le devis
+        function saveQuote() {
+            if (quoteItems.length === 0) {
+                alert("Votre devis est vide. Ajoutez des articles avant de l'enregistrer.");
+                return;
+            }
+            
+            // Dans un cas réel, vous enverriez les données à un serveur
+            // Ici, nous allons simplement simuler l'enregistrement
+            
+            const subtotal = quoteItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const markupAmount = subtotal * (markupPercentage / 100);
+            const total = subtotal + markupAmount;
+            
+            const quoteData = {
+                items: quoteItems,
+                subtotal: subtotal,
+                markup: markupAmount,
+                total: total,
+                date: new Date().toLocaleDateString('fr-FR')
+            };
+            
+            // Simuler l'enregistrement
+            alert(`Devis enregistré avec succès!\n\nTotal: ${total.toFixed(2)} €\n\nDans un système réel, les données seraient sauvegardées.`);
+            
+            // Optionnel: Réinitialiser le devis après enregistrement
+            // clearQuote();
+        }
+        
+        // Imprimer le devis
+        function printQuote() {
+            if (quoteItems.length === 0) {
+                alert("Votre devis est vide. Ajoutez des articles avant de l'imprimer.");
+                return;
+            }
+            
+            // Ouvrir une nouvelle fenêtre avec le contenu du devis formaté pour l'impression
+            const printWindow = window.open('', '_blank');
+            const subtotal = quoteItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const markupAmount = subtotal * (markupPercentage / 100);
+            const total = subtotal + markupAmount;
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Devis</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+                        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+                        th { background-color: #f2f2f2; }
+                        .total-row { font-weight: bold; font-size: 1.2em; }
+                        .summary { margin-top: 30px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Devis</h1>
+                    <p>Date: ${new Date().toLocaleDateString('fr-FR')}</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Référence</th>
+                                <th>Article</th>
+                                <th>Quantité</th>
+                                <th>Prix unitaire</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${quoteItems.map(item => `
+                                <tr>
+                                    <td>${item.reference}</td>
+                                    <td>${item.name}</td>
+                                    <td>${item.quantity}</td>
+                                    <td>${item.price.toFixed(2)} €</td>
+                                    <td>${(item.price * item.quantity).toFixed(2)} €</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    
+                    <div class="summary">
+                        <p>Sous-total: ${subtotal.toFixed(2)} €</p>
+                        <p>Marge (${markupPercentage}%): ${markupAmount.toFixed(2)} €</p>
+                        <p class="total-row">Total: ${total.toFixed(2)} €</p>
+                    </div>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.print();
+        }
+    </script>
+</body>
+</html>
